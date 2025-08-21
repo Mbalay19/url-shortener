@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URL Shortener - Elegant Microservice</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --accent-color: #6366f1;
+            --text-primary: #1f2937;
+            --text-secondary: #6b7280;
+            --text-muted: #9ca3af;
+            --background-primary: #ffffff;
+            --background-secondary: #f9fafb;
+            --background-tertiary: #f3f4f6;
+            --border-color: #e5e7eb;
+            --shadow-light: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            --shadow-medium: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-large: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            --border-radius: 12px;
+            --border-radius-lg: 16px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background: var(--background-secondary);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 1rem;
+            background-image: 
+                radial-gradient(circle at 25% 25%, rgba(102, 126, 234, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, rgba(240, 147, 251, 0.05) 0%, transparent 50%);
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background: var(--background-primary);
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow-large);
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        .header {
+            background: var(--primary-gradient);
+            padding: 3rem 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/><circle cx="50" cy="10" r="0.5" fill="white" opacity="0.1"/><circle cx="10" cy="60" r="0.5" fill="white" opacity="0.1"/><circle cx="90" cy="40" r="0.5" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+            opacity: 0.3;
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.025em;
+        }
+
+        .header p {
+            font-size: 1.125rem;
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 300;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .main-content {
+            padding: 3rem 2rem;
+        }
+
+        .form-section {
+            margin-bottom: 3rem;
+        }
+
+        .form-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .form-subtitle {
+            color: var(--text-secondary);
+            text-align: center;
+            margin-bottom: 2rem;
+            font-weight: 400;
+        }
+
+        .form-group {
+            position: relative;
+            margin-bottom: 2rem;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 1rem 1.25rem;
+            border: 2px solid var(--border-color);
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            font-family: inherit;
+            background: var(--background-primary);
+            color: var(--text-primary);
+            transition: var(--transition);
+            outline: none;
+        }
+
+        .form-input:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .form-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 1rem 2rem;
+            background: var(--primary-gradient);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .result {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            border: 1px solid;
+            font-family: 'Inter', monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            transition: var(--transition);
+            transform: translateY(10px);
+            opacity: 0;
+        }
+
+        .result.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .result.success {
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+            border-color: #10b981;
+            color: #065f46;
+        }
+
+        .result.error {
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            border-color: #ef4444;
+            color: #991b1b;
+        }
+
+        .result.loading {
+            background: var(--background-tertiary);
+            border-color: var(--border-color);
+            color: var(--text-secondary);
+        }
+
+        .short-link {
+            color: var(--accent-color);
+            text-decoration: none;
+            font-weight: 600;
+            transition: var(--transition);
+            border-bottom: 1px solid transparent;
+        }
+
+        .short-link:hover {
+            border-bottom-color: var(--accent-color);
+        }
+
+        .info-section {
+            background: var(--background-secondary);
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+
+        .info-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 1.5rem;
+        }
+
+        .api-endpoint {
+            background: var(--background-primary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            margin: 1rem 0;
+            box-shadow: var(--shadow-light);
+        }
+
+        .endpoint-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .method-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.025em;
+        }
+
+        .method-post {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .method-get {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .code-block {
+            background: #1f2937;
+            color: #e5e7eb;
+            padding: 1rem;
+            border-radius: 8px;
+            font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+            font-size: 0.875rem;
+            line-height: 1.6;
+            overflow-x: auto;
+            margin: 0.75rem 0;
+        }
+
+        .json-key {
+            color: #60a5fa;
+        }
+
+        .json-string {
+            color: #34d399;
+        }
+
+        .json-number {
+            color: #fbbf24;
+        }
+
+        @media (max-width: 640px) {
+            body {
+                padding: 1rem 0.5rem;
+            }
+
+            .header {
+                padding: 2rem 1.5rem;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .main-content {
+                padding: 2rem 1.5rem;
+            }
+
+            .info-section {
+                padding: 1.5rem;
+            }
+        }
+
+        .loading-dots {
+            display: inline-flex;
+            gap: 4px;
+        }
+
+        .loading-dots span {
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: currentColor;
+            animation: loading-bounce 1.4s ease-in-out infinite;
+        }
+
+        .loading-dots span:nth-child(1) { animation-delay: -0.32s; }
+        .loading-dots span:nth-child(2) { animation-delay: -0.16s; }
+
+        @keyframes loading-bounce {
+            0%, 80%, 100% { transform: scale(0); opacity: 0.5; }
+            40% { transform: scale(1); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="header-content">
+                <h1>URL Shortener</h1>
+                <p>Transform your long URLs into clean, shareable links with our elegant microservice</p>
+            </div>
+        </header>
+        
+        <main class="main-content">
+            <section class="form-section">
+                <h2 class="form-title">Create Short Link</h2>
+                <p class="form-subtitle">Enter any valid URL and we'll create a shortened version for you</p>
+                
+                <form id="url-form">
+                    <div class="form-group">
+                        <div class="input-wrapper">
+                            <input 
+                                type="url" 
+                                id="url-input" 
+                                name="url" 
+                                class="form-input"
+                                placeholder="https://example.com/your-very-long-url"
+                                required
+                            >
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="submit-btn" id="submit-btn">
+                        <span id="btn-text">Generate Short URL</span>
+                    </button>
+                </form>
+                
+                <div id="result" class="result" style="display: none;"></div>
+            </section>
+
+            <section class="info-section">
+                <h2 class="info-title">API Documentation</h2>
+                
+                <div class="api-endpoint">
+                    <div class="endpoint-title">
+                        <span class="method-badge method-post">POST</span>
+                        <span>/api/shorturl</span>
+                    </div>
+                    <p style="color: var(--text-secondary); margin-bottom: 1rem;">Create a shortened URL from a long URL</p>
+                    
+                    <strong style="color: var(--text-primary);">Request Body:</strong>
+                    <div class="code-block">{ <span class="json-key">"url"</span>: <span class="json-string">"https://example.com"</span> }</div>
+                    
+                    <strong style="color: var(--text-primary);">Response:</strong>
+                    <div class="code-block">{ <span class="json-key">"original_url"</span>: <span class="json-string">"https://example.com"</span>, <span class="json-key">"short_url"</span>: <span class="json-number">1</span> }</div>
+                </div>
+
+                <div class="api-endpoint">
+                    <div class="endpoint-title">
+                        <span class="method-badge method-get">GET</span>
+                        <span>/api/shorturl/:id</span>
+                    </div>
+                    <p style="color: var(--text-secondary); margin-bottom: 1rem;">Redirect to the original URL using the short URL ID</p>
+                    
+                    <strong style="color: var(--text-primary);">Example:</strong>
+                    <div class="code-block">GET /api/shorturl/1</div>
+                    <p style="color: var(--text-secondary); font-size: 0.9rem;">Redirects automatically to the original URL</p>
+                </div>
+
+                <div class="api-endpoint">
+                    <div class="endpoint-title">
+                        <span style="color: var(--text-secondary);">Error Handling</span>
+                    </div>
+                    <p style="color: var(--text-secondary); margin-bottom: 1rem;">Invalid URLs return an error response</p>
+                    
+                    <div class="code-block">{ <span class="json-key">"error"</span>: <span class="json-string">"invalid url"</span> }</div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        // Enhanced form handling with improved UX
+        document.getElementById('url-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const url = document.getElementById('url-input').value.trim();
+            const resultDiv = document.getElementById('result');
+            const submitBtn = document.getElementById('submit-btn');
+            const btnText = document.getElementById('btn-text');
+            
+            // Reset previous states
+            resultDiv.classList.remove('show');
+            
+            // Set loading state
+            submitBtn.disabled = true;
+            btnText.innerHTML = 'Processing <div class="loading-dots"><span></span><span></span><span></span></div>';
+            
+            // Show loading result
+            setTimeout(() => {
+                resultDiv.style.display = 'block';
+                resultDiv.className = 'result loading';
+                resultDiv.innerHTML = 'Validating URL and generating short link<div class="loading-dots"><span></span><span></span><span></span></div>';
+                resultDiv.classList.add('show');
+            }, 100);
+            
+            try {
+                // Simulate minimum loading time for better UX
+                const [response] = await Promise.all([
+                    fetch('/api/shorturl', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ url: url })
+                    }),
+                    new Promise(resolve => setTimeout(resolve, 800))
+                ]);
+                
+                const data = await response.json();
+                
+                // Reset button state
+                submitBtn.disabled = false;
+                btnText.textContent = 'Generate Short URL';
+                
+                if (data.error) {
+                    // Show error with animation
+                    resultDiv.className = 'result error';
+                    resultDiv.innerHTML = `
+                        <strong>Unable to shorten URL</strong><br>
+                        <span style="opacity: 0.8;">${data.error === 'invalid url' ? 'Please check that your URL is valid and accessible' : data.error}</span>
+                    `;
+                } else {
+                    // Show success with animation
+                    resultDiv.className = 'result success';
+                    const shortUrl = `${window.location.origin}/api/shorturl/${data.short_url}`;
+                    resultDiv.innerHTML = `
+                        <strong>Success! Your URL has been shortened</strong><br><br>
+                        <strong>Original:</strong> ${data.original_url}<br>
+                        <strong>Shortened:</strong> <a href="${shortUrl}" class="short-link" target="_blank" rel="noopener">${shortUrl}</a><br><br>
+                        <span style="opacity: 0.8; font-size: 0.85rem;">Click the shortened link to test the redirect</span>
+                    `;
+                    
+                    // Clear the input after successful shortening
+                    document.getElementById('url-input').value = '';
+                }
+                
+                resultDiv.classList.add('show');
+                
+            } catch (error) {
+                // Reset button state
+                submitBtn.disabled = false;
+                btnText.textContent = 'Generate Short URL';
+                
+                // Show network error
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = `
+                    <strong>Connection Error</strong><br>
+                    <span style="opacity: 0.8;">Unable to connect to the server. Please check your connection and try again.</span>
+                `;
+                resultDiv.classList.add('show');
+            }
+        });
+        
+        // Enhanced input validation feedback
+        const urlInput = document.getElementById('url-input');
+        urlInput.addEventListener('input', function() {
+            // Reset any previous error states when user starts typing
+            const resultDiv = document.getElementById('result');
+            if (resultDiv.classList.contains('error')) {
+                resultDiv.style.display = 'none';
+                resultDiv.classList.remove('show');
+            }
+        });
+    </script>
+</body>
+</html>
